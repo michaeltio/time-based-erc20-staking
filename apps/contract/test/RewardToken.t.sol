@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.28;
 
-import "forge-std/Test.sol";
-import "./RewardToken.sol";
+import {Test} from "forge-std/Test.sol";
+import {RewardToken} from "../contracts/RewardToken.sol";
 
 contract RewardTokenTest is Test {
     RewardToken rewardToken;
@@ -17,12 +17,12 @@ contract RewardTokenTest is Test {
         rewardToken = new RewardToken();
     }
 
-    function test_NameAndSymbol() public {
+    function testNameAndSymbol() public view {
         assertEq(rewardToken.name(), "RewardToken");
         assertEq(rewardToken.symbol(), "RWT");
     }
 
-    function test_MintAmountToOwner() public {
+    function testMintAmountToOwner() public view {
         uint256 decimals = rewardToken.decimals();
         uint256 expectedSupply = 500_000 * 10 ** decimals;
 
@@ -31,7 +31,7 @@ contract RewardTokenTest is Test {
         assertEq(rewardToken.balanceOf(owner), expectedSupply);
     }
 
-    function test_OtherUserHasZeroBalance() public {
+    function testOtherUserHasZeroBalance() public view {
         assertEq(rewardToken.balanceOf(user), 0);
     }
 }

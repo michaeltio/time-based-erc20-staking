@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.28;
 
-import "forge-std/Test.sol";
-import "./StakeToken.sol";
+import {Test} from "forge-std/Test.sol";
+import {StakeToken} from "../contracts/StakeToken.sol";
 
 contract StakeTokenTest is Test {
     StakeToken stakeToken;
@@ -17,12 +17,12 @@ contract StakeTokenTest is Test {
         stakeToken = new StakeToken();
     }
 
-    function test_NameAndSymbol() public {
+    function testNameAndSymbol() public view {
         assertEq(stakeToken.name(), "StakeToken");
         assertEq(stakeToken.symbol(), "SKT");
     }
 
-    function test_MintAmountToOwner() public {
+    function testMintAmountToOwner() public view {
         uint256 decimals = stakeToken.decimals();
         uint256 expectedSupply = 1_000_000 * 10 ** decimals;
 
@@ -31,7 +31,7 @@ contract StakeTokenTest is Test {
         assertEq(stakeToken.balanceOf(owner), expectedSupply);
     }
 
-    function test_OtherUserHasZeroBalance() public {
+    function testOtherUserHasZeroBalance() public view {
         assertEq(stakeToken.balanceOf(user), 0);
     }
 }

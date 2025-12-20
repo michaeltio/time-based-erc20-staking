@@ -16,6 +16,14 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "compile": {
+      "dependsOn": ["^compile"],
+      "outputs": ["artifacts/**", "cache/**"]
+    },
+    "test": {
+      "dependsOn": ["compile"],
+      "outputs": []
     }
   }
 }

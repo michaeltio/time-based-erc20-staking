@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: MIT
+// accRewardPerShare: accumulated rewards per staked token (scaled by 1e12)
+// rewardRate: reward tokens distributed per second
+// rewardEndTime: timestamp when reward stops accumulating
+
 pragma solidity 0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -32,9 +35,8 @@ contract Staking is Ownable, ReentrancyGuard {
     event EmergencyWithdrawn(address indexed user, uint256 amount);
     event RewardRateUpdated(uint256 newRate);
     event RewardsFunded(uint256 amount);
-    event RewardEndTimeSet(uint256 endTime);
 
-    constructor(address _stakeToken, address _rewardToken) {
+    constructor(address _stakeToken, address _rewardToken) Ownable(msg.sender) {
         stakeToken = IERC20(_stakeToken);
         rewardToken = IERC20(_rewardToken);
     }
@@ -51,6 +53,7 @@ contract Staking is Ownable, ReentrancyGuard {
             uint256 pending = (user.amount * accRewardPerShare) /
                 1e12 -
                 user.rewardDebt;
+
             if (pending > 0) {
                 _safeRewardTransfer(msg.sender, pending);
                 emit RewardClaimed(msg.sender, pending);
@@ -63,6 +66,7 @@ contract Staking is Ownable, ReentrancyGuard {
         totalStaked += amount;
 
         user.rewardDebt = (user.amount * accRewardPerShare) / 1e12;
+
         emit Staked(msg.sender, amount);
     }
 
@@ -75,6 +79,7 @@ contract Staking is Ownable, ReentrancyGuard {
         uint256 pending = (user.amount * accRewardPerShare) /
             1e12 -
             user.rewardDebt;
+
         if (pending > 0) {
             _safeRewardTransfer(msg.sender, pending);
             emit RewardClaimed(msg.sender, pending);
@@ -86,16 +91,19 @@ contract Staking is Ownable, ReentrancyGuard {
         stakeToken.safeTransfer(msg.sender, amount);
 
         user.rewardDebt = (user.amount * accRewardPerShare) / 1e12;
+
         emit Withdrawn(msg.sender, amount);
     }
 
     function claimRewards() public nonReentrant {
         User storage user = users[msg.sender];
+
         updatePool();
 
         uint256 pending = (user.amount * accRewardPerShare) /
             1e12 -
             user.rewardDebt;
+
         require(pending > 0, "No rewards");
 
         _safeRewardTransfer(msg.sender, pending);
@@ -104,24 +112,25 @@ contract Staking is Ownable, ReentrancyGuard {
         user.rewardDebt = (user.amount * accRewardPerShare) / 1e12;
     }
 
-    function setRewardRate(uint256 _rate) external onlyOwner {
+    function setRewardRate(uint256 _rate) public onlyOwner {
         require(block.timestamp < rewardEndTime, "Reward period ended");
         updatePool();
         rewardRate = _rate;
         emit RewardRateUpdated(_rate);
     }
 
-    function getStakedBalance(
-        address userAddr
-    ) external view returns (uint256) {
-        return users[userAddr].amount;
+    function getStakedBalance(address user) public view returns (uint256) {
+        return users[user].amount;
     }
 
     function getPendingRewards(address _user) external view returns (uint256) {
         User storage user = users[_user];
         uint256 tempAcc = accRewardPerShare;
         uint256 currentTime = block.timestamp;
-        if (currentTime > rewardEndTime) currentTime = rewardEndTime;
+
+        if (currentTime > rewardEndTime) {
+            currentTime = rewardEndTime;
+        }
 
         if (currentTime > lastRewardTime && totalStaked != 0) {
             uint256 timePassed = currentTime - lastRewardTime;
@@ -132,7 +141,7 @@ contract Staking is Ownable, ReentrancyGuard {
         return (user.amount * tempAcc) / 1e12 - user.rewardDebt;
     }
 
-    function emergencyWithdraw() external nonReentrant {
+    function emergencyWithdraw() public nonReentrant {
         User storage user = users[msg.sender];
         uint256 amount = user.amount;
         require(amount > 0, "Nothing to withdraw");
@@ -142,13 +151,20 @@ contract Staking is Ownable, ReentrancyGuard {
         totalStaked -= amount;
 
         stakeToken.safeTransfer(msg.sender, amount);
+
         emit EmergencyWithdrawn(msg.sender, amount);
     }
 
     function updatePool() internal {
         uint256 currentTime = block.timestamp;
+
         if (currentTime <= lastRewardTime) return;
-        if (currentTime > rewardEndTime) currentTime = rewardEndTime;
+
+        if (currentTime > rewardEndTime) {
+            currentTime = rewardEndTime;
+        }
+
+        if (currentTime <= lastRewardTime) return;
 
         if (totalStaked == 0) {
             lastRewardTime = currentTime;
@@ -170,14 +186,17 @@ contract Staking is Ownable, ReentrancyGuard {
 
     function _safeRewardTransfer(address to, uint256 amount) internal {
         uint256 balance = rewardToken.balanceOf(address(this));
-        if (amount > balance) amount = balance;
-        if (amount > 0) rewardToken.safeTransfer(to, amount);
+        if (amount > balance) {
+            amount = balance;
+        }
+        if (amount > 0) {
+            rewardToken.safeTransfer(to, amount);
+        }
     }
 
     function setRewardEndTime(uint256 _endTime) external onlyOwner {
         require(_endTime > block.timestamp, "Invalid end time");
         updatePool();
         rewardEndTime = _endTime;
-        emit RewardEndTimeSet(_endTime);
     }
 }
