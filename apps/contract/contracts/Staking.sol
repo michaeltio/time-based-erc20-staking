@@ -5,10 +5,10 @@
 
 pragma solidity 0.8.28;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract Staking is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -43,7 +43,7 @@ contract Staking is Ownable, ReentrancyGuard {
 
     function stake(uint256 amount) public nonReentrant {
         require(block.timestamp < rewardEndTime, "Staking period ended");
-        require(amount > 0, "Cannot stake zero");
+        require(amount > 0, "Cannot stake zero tokens");
 
         User storage user = users[msg.sender];
 
@@ -72,6 +72,7 @@ contract Staking is Ownable, ReentrancyGuard {
 
     function withdraw(uint256 amount) public nonReentrant {
         User storage user = users[msg.sender];
+        require(amount > 0, "Cannot Withdraw 0 Amount");
         require(user.amount >= amount, "Not enough staked");
 
         updatePool();
