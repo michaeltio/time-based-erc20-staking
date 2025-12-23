@@ -3,7 +3,7 @@
 pragma solidity 0.8.28;
 
 import {Test} from "forge-std/Test.sol";
-import {RewardToken} from "../contracts/RewardToken.sol";
+import {RewardToken} from "../../contracts/RewardToken.sol";
 
 contract RewardTokenTest is Test {
     RewardToken rewardToken;
