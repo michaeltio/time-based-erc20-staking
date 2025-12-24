@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.28;
 
-import {BaseTest} from "../../Base.t.sol";
+import {BaseTest} from "../../helpers/Base.t.sol";
 
 contract StakeTest is BaseTest {
     function testStakeSuccessfull() public {
@@ -173,9 +173,20 @@ contract StakeTest is BaseTest {
         assertGt(reward2, 0);
     }
 
-    //???
-    function testStakeNonReentrant() public {}
+    function testStakeNonReentrant() public {
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 200);
+        staking.stake(100);
+        staking.stake(100);
+        assertEq(staking.getStakedBalance(user1), 200);
+        vm.stopPrank();
+    }
 
-    //???
-    function testStakeSameBlockNoReward() public {}
+    function testStakeSameBlockNoReward() public {
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 100);
+        staking.stake(100);
+        assertEq(staking.getPendingRewards(user1), 0);
+        vm.stopPrank();
+    }
 }
