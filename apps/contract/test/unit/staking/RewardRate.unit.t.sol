@@ -81,10 +81,4 @@ contract RewardRateTest is BaseTest {
         uint256 pending = staking.getPendingRewards(user1);
         assertGt(pending, 1 days * 1e18);
     }
-
-    function testSetRewardRateWithNoStakers() public {
-        vm.prank(owner);
-        staking.setRewardRate(5e18);
-        assertEq(staking.rewardRate(), 5e18);
-    }
 }

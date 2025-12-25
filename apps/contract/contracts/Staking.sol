@@ -35,6 +35,7 @@ contract Staking is Ownable, ReentrancyGuard {
     event EmergencyWithdrawn(address indexed user, uint256 amount);
     event RewardRateUpdated(uint256 newRate);
     event RewardsFunded(uint256 amount);
+    event RewardEndTimeUpdated(uint256 newEndTime);
 
     constructor(address _stakeToken, address _rewardToken) Ownable(msg.sender) {
         stakeToken = IERC20(_stakeToken);
@@ -199,5 +200,6 @@ contract Staking is Ownable, ReentrancyGuard {
         require(_endTime > block.timestamp, "Invalid end time");
         updatePool();
         rewardEndTime = _endTime;
+        emit RewardEndTimeUpdated(_endTime);
     }
 }

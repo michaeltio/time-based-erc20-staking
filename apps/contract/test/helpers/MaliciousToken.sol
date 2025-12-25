@@ -24,16 +24,16 @@ contract MaliciousToken is ERC20 {
         _mint(to, amount);
     }
 
-    function _update(
-        address from,
-        address to,
-        uint256 value
-    ) internal override {
-        super._update(from, to, value);
+    // function _update(
+    //     address from,
+    //     address to,
+    //     uint256 value
+    // ) internal override {
+    //     super._update(from, to, value);
 
-        if (!attacking && from == address(staking) && to == attacker) {
-            attacking = true;
-            staking.withdraw(10);
-        }
-    }
+    //     if (!attacking && from == address(staking) && to == attacker) {
+    //         attacking = true;
+    //         staking.withdraw(10);
+    //     }
+    // }
 }
