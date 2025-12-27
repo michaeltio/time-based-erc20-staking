@@ -1,14 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import ThreeNoiseBackground from "@/components/NoiseBackground";
 import AsciiBackground from "@/components/ASCIIBackground";
 
 export default function Home() {
   return (
     <div className="container mx-auto flex items-center justify-center flex-col min-h-screen ">
-      {/* <ThreeNoiseBackground opacity={0.08} speed={10} /> */}
-      <AsciiBackground speed={5} />
+      <AsciiBackground />
       <main className="flex  flex flex-col items-center justify-center">
         <h1 className="text-5xl font-bold text-center mb-8 text-foreground">
           Earn Rewards by Staking

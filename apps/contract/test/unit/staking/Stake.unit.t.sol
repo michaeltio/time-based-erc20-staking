@@ -1,196 +1,269 @@
-// //SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
-// pragma solidity 0.8.28;
+pragma solidity 0.8.28;
 
-// import {BaseTest} from "../../helpers/Base.t.sol";
+import {BaseTest} from "../../helpers/Base.t.sol";
 
-// contract StakeTest is BaseTest {
-//     function setUp() public override {
-//         super.setUp();
-//     }
+contract StakeTest is BaseTest {
+    function test_RevertIf_StakeZeroAmount() public {
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 0);
+        vm.expectRevert("Cannot stake zero tokens");
+        staking.stake(0);
+        vm.stopPrank();
+    }
 
-//     function testStakeSuccessfull() public {
-//         vm.startPrank(user1);
+    function test_RevertIf_StakeAfterRewardEnd() public {
+        vm.warp(block.timestamp + 31 days);
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 100e18);
+        vm.expectRevert("Staking period ended");
+        staking.stake(100e18);
+        vm.stopPrank();
+    }
 
-//         stakeToken.approve(address(staking), 100);
-//         staking.stake(100);
+    function test_RevertIf_StakeWithoutApproval() public {
+        vm.startPrank(user1);
+        vm.expectRevert();
+        staking.stake(100e18);
+        vm.stopPrank();
+    }
 
-//         vm.stopPrank();
+    function test_RevertIf_StakeInsufficientBalance() public {
+        vm.startPrank(user1);
+        uint256 balance = stakeToken.balanceOf(user1);
+        stakeToken.approve(address(staking), balance + 1);
+        vm.expectRevert();
+        staking.stake(balance + 1);
+        vm.stopPrank();
+    }
 
-//         assertEq(staking.totalStaked(), 100);
-//         assertEq(staking.getStakedBalance(user1), 100);
-//     }
+    function testStakeBasicSuccess() public {
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 100e18);
 
-//     function testStakeZeroAmount() public {
-//         vm.startPrank(user1);
+        vm.expectEmit(true, false, false, true);
+        emit Staked(user1, 100e18);
+        staking.stake(100e18);
 
-//         stakeToken.approve(address(staking), 0);
-//         vm.expectRevert("Cannot stake zero tokens");
-//         staking.stake(0);
-//         vm.stopPrank();
-//     }
+        vm.stopPrank();
 
-//     function test_RevertIf_StakeAfterRewardEnd() public {
-//         vm.warp(block.timestamp + 31 days);
-//         vm.startPrank(user1);
-//         stakeToken.approve(address(staking), 100);
-//         vm.expectRevert("Staking period ended");
-//         staking.stake(100);
-//         vm.stopPrank();
-//     }
+        assertEq(staking.totalStaked(), 100e18);
+        assertEq(staking.getStakedBalance(user1), 100e18);
 
-//     function test_RevertIf_StakeWithoutApprove() public {
-//         vm.startPrank(user1);
-//         vm.expectRevert();
-//         staking.stake(100);
-//         vm.stopPrank();
-//     }
+        (uint256 amount, uint256 rewardDebt) = staking.users(user1);
+        assertEq(amount, 100e18);
+        assertEq(rewardDebt, 0);
+    }
 
-//     function test_RevertIf_StakeInSufficientBalance() public {
-//         vm.startPrank(user1);
-//         stakeToken.approve(address(staking), 1001);
-//         vm.expectRevert();
-//         staking.stake(1001);
+    function testStakeMultipleTimesAccumulatesCorrectly() public {
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 300e18);
 
-//         vm.stopPrank();
-//     }
+        staking.stake(100e18);
+        assertEq(staking.totalStaked(), 100e18);
 
-//     function testTotalStakedIncrease() public {
-//         vm.startPrank(user1);
-//         stakeToken.approve(address(staking), 100);
-//         staking.stake(100);
-//         vm.stopPrank();
-//         assertEq(staking.totalStaked(), 100);
-//     }
+        vm.warp(block.timestamp + 1 hours);
+        staking.stake(100e18);
+        assertEq(staking.totalStaked(), 200e18);
 
-//     function testRewardDebtUpdatedOnStake() public {
-//         vm.startPrank(user1);
-//         stakeToken.approve(address(staking), 200);
-//         staking.stake(100);
+        vm.warp(block.timestamp + 1 hours);
+        staking.stake(100e18);
+        assertEq(staking.totalStaked(), 300e18);
 
-//         vm.warp(block.timestamp + 1 hours);
-//         staking.stake(100);
-//         vm.stopPrank();
+        vm.stopPrank();
+    }
 
-//         (, uint256 rewardDebt) = staking.users(user1);
+    function testStakeClaimsPendingRewardsOnSubsequentStake() public {
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 200e18);
 
-//         assertEq(rewardDebt, 72000);
-//     }
+        staking.stake(100e18);
+        uint256 balanceBefore = rewardToken.balanceOf(user1);
 
-//     function testLateStakerDoesNotStealReward() public {
-//         vm.startPrank(user1);
-//         stakeToken.approve(address(staking), 100);
-//         staking.stake(100);
-//         vm.stopPrank();
+        vm.warp(block.timestamp + 1 hours);
+        uint256 pendingBefore = staking.getPendingRewards(user1);
 
-//         vm.warp(block.timestamp + 1 hours);
+        vm.expectEmit(true, false, false, true);
+        emit RewardClaimed(user1, pendingBefore);
+        staking.stake(100e18);
 
-//         vm.startPrank(user2);
-//         stakeToken.approve(address(staking), 100);
-//         staking.stake(100);
-//         vm.stopPrank();
+        uint256 balanceAfter = rewardToken.balanceOf(user1);
+        assertEq(balanceAfter - balanceBefore, pendingBefore);
 
-//         vm.warp(block.timestamp + 1 hours);
+        vm.stopPrank();
+    }
 
-//         vm.prank(user1);
-//         staking.claimRewards();
+    function testStakeUpdatesRewardDebtCorrectly() public {
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 200e18);
 
-//         vm.prank(user2);
-//         staking.claimRewards();
+        staking.stake(100e18);
+        vm.warp(block.timestamp + 1 hours);
+        staking.stake(100e18);
 
-//         uint256 reward1 = rewardToken.balanceOf(user1);
-//         uint256 reward2 = rewardToken.balanceOf(user2);
+        vm.stopPrank();
 
-//         assertGt(reward1, reward2);
-//         assertEq(reward2, 0);
-//     }
+        (, uint256 rewardDebt) = staking.users(user1);
+        uint256 expectedDebt = (200e18 * staking.accRewardPerShare()) / 1e12;
+        assertEq(rewardDebt, expectedDebt);
+    }
 
-//     function testStakeTwiceAccumulatesCorrectly() public {
-//         vm.startPrank(user1);
-//         stakeToken.approve(address(staking), 200);
-//         staking.stake(100);
-//         assertEq(staking.totalStaked(), 100);
-//         staking.stake(100);
-//         assertEq(staking.totalStaked(), 200);
-//         vm.stopPrank();
-//     }
+    function testStakeProportionalRewardDistribution() public {
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 100e18);
+        staking.stake(100e18);
+        vm.stopPrank();
 
-//     //???
-//     function testMultipleStakersFairDistribution() public {
-//         vm.warp(100);
+        vm.startPrank(user2);
+        stakeToken.approve(address(staking), 300e18);
+        staking.stake(300e18);
+        vm.stopPrank();
 
-//         vm.prank(user1);
-//         staking.stake(100);
+        vm.warp(block.timestamp + 1 hours);
 
-//         vm.prank(user2);
-//         staking.stake(300);
+        uint256 pending1 = staking.getPendingRewards(user1);
+        uint256 pending2 = staking.getPendingRewards(user2);
 
-//         vm.warp(100 + 1 hours);
+        assertApproxEqRel(pending2, pending1 * 3, 0.01e18);
+    }
 
-//         vm.prank(user1);
-//         staking.claimRewards();
+    function testStakeLateEntrantDoesNotStealPriorRewards() public {
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 100e18);
+        staking.stake(100e18);
+        vm.stopPrank();
 
-//         vm.prank(user2);
-//         staking.claimRewards();
+        vm.warp(block.timestamp + 10 hours);
 
-//         uint256 reward1 = rewardToken.balanceOf(user1);
-//         uint256 reward2 = rewardToken.balanceOf(user2);
+        vm.startPrank(user2);
+        stakeToken.approve(address(staking), 100e18);
+        staking.stake(100e18);
+        vm.stopPrank();
 
-//         assertGt(reward1, 0);
-//         assertGt(reward2, 0);
+        uint256 pending1 = staking.getPendingRewards(user1);
+        uint256 pending2 = staking.getPendingRewards(user2);
 
-//         // user2 stake 3x user1
-//         assertApproxEqRel(
-//             reward2,
-//             reward1 * 3,
-//             0.01e18 // 1% toleransi (Foundry pakai fixed 1e18)
-//         );
-//     }
+        assertGt(pending1, 0);
+        assertEq(pending2, 0);
+    }
 
-//     //???
-//     function testStakeWithdrawDoesNotBreakOthers() public {
-//         vm.warp(100);
+    function testStakeAtRewardEndTimeBoundary() public {
+        uint256 endTime = block.timestamp + 30 days;
+        vm.warp(endTime - 1);
 
-//         // user1 & user2 stake
-//         vm.prank(user1);
-//         staking.stake(100);
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 100e18);
+        staking.stake(100e18);
+        vm.stopPrank();
 
-//         vm.prank(user2);
-//         staking.stake(300);
+        assertEq(staking.totalStaked(), 100e18);
+    }
 
-//         vm.warp(100 + 1 hours);
+    function testStakeWithMaxUint256Amount() public {
+        uint256 largeAmount = type(uint256).max / 2;
 
-//         // user1 withdraw
-//         vm.prank(user1);
-//         staking.withdraw(100);
+        vm.startPrank(owner);
+        stakeToken.mint(user1, largeAmount);
+        vm.stopPrank();
 
-//         // lanjut waktu
-//         vm.warp(100 + 2 hours);
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), largeAmount);
+        staking.stake(largeAmount);
+        vm.stopPrank();
 
-//         // user2 claim reward
-//         vm.prank(user2);
-//         staking.claimRewards();
+        assertEq(staking.totalStaked(), largeAmount);
+    }
 
-//         uint256 reward2 = rewardToken.balanceOf(user2);
+    function testStakeSameBlockNoPendingReward() public {
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 100e18);
+        staking.stake(100e18);
+        assertEq(staking.getPendingRewards(user1), 0);
+        vm.stopPrank();
+    }
 
-//         // reward user2 tetap masuk akal
-//         assertGt(reward2, 0);
-//     }
+    function testStakeUpdatesLastRewardTime() public {
+        uint256 timeBefore = staking.lastRewardTime();
 
-//     function testStakeNonReentrant() public {
-//         vm.startPrank(user1);
-//         stakeToken.approve(address(staking), 200);
-//         staking.stake(100);
-//         staking.stake(100);
-//         assertEq(staking.getStakedBalance(user1), 200);
-//         vm.stopPrank();
-//     }
+        vm.warp(block.timestamp + 100);
 
-//     function testStakeSameBlockNoReward() public {
-//         vm.startPrank(user1);
-//         stakeToken.approve(address(staking), 100);
-//         staking.stake(100);
-//         assertEq(staking.getPendingRewards(user1), 0);
-//         vm.stopPrank();
-//     }
-// }
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 100e18);
+        staking.stake(100e18);
+        vm.stopPrank();
+
+        uint256 timeAfter = staking.lastRewardTime();
+        assertEq(timeAfter, block.timestamp);
+        assertGt(timeAfter, timeBefore);
+    }
+
+    function testStakeMultipleUsersIndependently() public {
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 100e18);
+        staking.stake(100e18);
+        vm.stopPrank();
+
+        vm.startPrank(user2);
+        stakeToken.approve(address(staking), 200e18);
+        staking.stake(200e18);
+        vm.stopPrank();
+
+        vm.startPrank(user3);
+        stakeToken.approve(address(staking), 300e18);
+        staking.stake(300e18);
+        vm.stopPrank();
+
+        assertEq(staking.totalStaked(), 600e18);
+        assertEq(staking.getStakedBalance(user1), 100e18);
+        assertEq(staking.getStakedBalance(user2), 200e18);
+        assertEq(staking.getStakedBalance(user3), 300e18);
+    }
+
+    function testStakeUpdatesAccRewardPerShareWithExistingStakers() public {
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 100e18);
+        staking.stake(100e18);
+        vm.stopPrank();
+
+        uint256 accBefore = staking.accRewardPerShare();
+
+        vm.warp(block.timestamp + 1 hours);
+
+        vm.startPrank(user2);
+        stakeToken.approve(address(staking), 100e18);
+        staking.stake(100e18);
+        vm.stopPrank();
+
+        uint256 accAfter = staking.accRewardPerShare();
+        assertGt(accAfter, accBefore);
+    }
+
+    function testStakeAfterPartialWithdraw() public {
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 200e18);
+
+        staking.stake(100e18);
+        vm.warp(block.timestamp + 1 hours);
+        staking.withdraw(50e18);
+
+        vm.warp(block.timestamp + 1 hours);
+        staking.stake(100e18);
+
+        vm.stopPrank();
+
+        assertEq(staking.getStakedBalance(user1), 150e18);
+    }
+
+    function testStakeFirstStakerToEmptyPool() public {
+        vm.warp(block.timestamp + 10 hours);
+
+        vm.startPrank(user1);
+        stakeToken.approve(address(staking), 100e18);
+        staking.stake(100e18);
+        vm.stopPrank();
+
+        assertEq(staking.totalStaked(), 100e18);
+        assertEq(staking.lastRewardTime(), block.timestamp);
+    }
+}
