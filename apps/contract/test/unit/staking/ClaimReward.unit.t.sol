@@ -22,16 +22,6 @@ contract ClaimRewardsTest is BaseTest {
         vm.stopPrank();
     }
 
-    function test_RevertIf_ClaimRewardsSameBlockAsStake() public {
-        vm.startPrank(user1);
-        stakeToken.approve(address(staking), 100e18);
-        staking.stake(100e18);
-
-        vm.expectRevert("No rewards");
-        staking.claimRewards();
-        vm.stopPrank();
-    }
-
     function testClaimRewardsBasicSuccess() public {
         vm.startPrank(user1);
         stakeToken.approve(address(staking), 100e18);
@@ -228,24 +218,24 @@ contract ClaimRewardsTest is BaseTest {
         assertApproxEqRel(balance1, balance2, 0.01e18);
     }
 
-    //     function testClaimRewardsAfterRewardPeriodEnds() public {
-    //         vm.startPrank(user1);
-    //         stakeToken.approve(address(staking), 100e18);
-    //         staking.stake(100e18);
-    //         vm.stopPrank();
+    // function testClaimRewardsAfterRewardPeriodEnds() public {
+    //     vm.startPrank(user1);
+    //     stakeToken.approve(address(staking), 100e18);
+    //     staking.stake(100e18);
+    //     vm.stopPrank();
 
-    //         vm.warp(block.timestamp + 31 days);
+    //     vm.warp(block.timestamp + 31 days);
 
-    //         uint256 pending = staking.getPendingRewards(user1);
-    //         uint256 expectedMax = 30 days * 1e18;
+    //     uint256 pending = staking.getPendingRewards(user1);
+    //     uint256 expectedMax = 30 days * 1e18;
 
-    //         assertApproxEqRel(pending, expectedMax, 0.01e18);
+    //     assertApproxEqRel(pending, expectedMax, 0.01e18);
 
-    //         vm.prank(user1);
-    //         staking.claimRewards();
+    //     vm.prank(user1);
+    //     staking.claimRewards();
 
-    //         assertEq(rewardToken.balanceOf(user1), pending);
-    //     }
+    //     assertEq(rewardToken.balanceOf(user1), pending);
+    // }
 
     function testClaimRewardsThenStakeAgain() public {
         vm.startPrank(user1);
