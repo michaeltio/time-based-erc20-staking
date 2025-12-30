@@ -27,8 +27,8 @@ export default function AsciiBackground() {
       invert: true,
     });
 
-    effect.domElement.style.color = "#525252ff";
-    effect.domElement.style.backgroundColor = "#020617";
+    effect.domElement.style.color = "#303030ff";
+    effect.domElement.style.backgroundColor = "#0a0a0aff";
     effect.domElement.style.position = "fixed";
     effect.domElement.style.inset = "0";
     effect.domElement.style.pointerEvents = "none";
