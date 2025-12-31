@@ -1,7 +1,12 @@
 {
-  "name": "contract",
+  "name": "@repo/contract",
   "version": "1.0.0",
   "type": "module",
+  "exports": {
+    "./reward-token": "./artifacts/contracts/RewardToken.sol/RewardToken.json",
+    "./stake-token": "./artifacts/contracts/StakeToken.sol/StakeToken.json",
+    "./staking": "./artifacts/contracts/Staking.sol/Staking.json"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^3.0.6",
     "@nomicfoundation/hardhat-toolbox-viem": "^5.0.1",

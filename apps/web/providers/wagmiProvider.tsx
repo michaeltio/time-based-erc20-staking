@@ -3,7 +3,6 @@
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { config } from "@/lib/wagmiConfig";
-import { Toaster } from "sonner";
 import { useState } from "react";
 
 export function WagmiProviders({ children }: { children: React.ReactNode }) {
@@ -11,10 +10,7 @@ export function WagmiProviders({ children }: { children: React.ReactNode }) {
 
   return (
     <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        {children}
-        <Toaster />
-      </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>
   );
 }

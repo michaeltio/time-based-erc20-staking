@@ -2,7 +2,8 @@
 import { useMemo } from "react";
 import { useReadContract } from "wagmi";
 import type { Abi } from "viem";
-import ERC20_ABI from "./RewardToken.json";
+
+import ERC20_ABI from "@repo/contract/reward-token";
 
 export function useERC20Balance(user?: `0x${string}`) {
   console.log("Address", process.env.NEXT_PUBLIC_REWARD_TOKEN_ADDRESS);
