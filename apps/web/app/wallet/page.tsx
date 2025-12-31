@@ -3,13 +3,13 @@
 import { useConnection, useChainId } from "wagmi";
 
 import { formatUnits } from "viem";
-import { useERC20Balance } from "@/hooks/contracts/useRewardToken";
+import { useRewardToken } from "@/hooks/contracts/useRewardToken";
 
 export default function Balance() {
   const { address, status } = useConnection();
   const chainId = useChainId();
 
-  const { data: balance, isLoading, error } = useERC20Balance(address);
+  const { data: balance, isLoading, error } = useRewardToken(address);
 
   if (status !== "connected") return <p>Connect wallet dulu</p>;
   if (isLoading) return <p>Loading balance...</p>;

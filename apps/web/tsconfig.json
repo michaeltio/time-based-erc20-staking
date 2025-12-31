@@ -19,9 +19,15 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@repo/contract": ["../../packages/contract/src/index.ts"]
     }
   },
+  "references": [
+    {
+      "path": "../../packages/contract"
+    }
+  ],
   "include": [
     "next-env.d.ts",
     "**/*.ts",

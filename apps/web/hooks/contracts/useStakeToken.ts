@@ -3,14 +3,14 @@ import { useMemo } from "react";
 import { useReadContract } from "wagmi";
 import type { Abi } from "viem";
 
-import { RewardTokenABI } from "@repo/contract";
+import { StakeTokenABI } from "@repo/contract";
 
-export function useRewardToken(user?: `0x${string}`) {
-  console.log("Address", process.env.NEXT_PUBLIC_REWARD_TOKEN_ADDRESS);
+export function useStakeToken(user?: `0x${string}`) {
+  console.log("Address", process.env.NEXT_PUBLIC_STAKE_TOKEN_ADDRESS);
   const contract = useMemo(
     () => ({
-      address: process.env.NEXT_PUBLIC_REWARD_TOKEN_ADDRESS as `0x${string}`,
-      abi: RewardTokenABI as Abi,
+      address: process.env.NEXT_PUBLIC_STAKE_TOKEN_ADDRESS as `0x${string}`,
+      abi: StakeTokenABI as Abi,
     }),
     []
   );

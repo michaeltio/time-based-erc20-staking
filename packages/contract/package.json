@@ -2,10 +2,10 @@
   "name": "@repo/contract",
   "version": "1.0.0",
   "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
-    "./reward-token": "./artifacts/contracts/RewardToken.sol/RewardToken.json",
-    "./stake-token": "./artifacts/contracts/StakeToken.sol/StakeToken.json",
-    "./staking": "./artifacts/contracts/Staking.sol/Staking.json"
+    ".": "./src/index.ts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^3.0.6",
