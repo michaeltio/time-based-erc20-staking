@@ -9,6 +9,26 @@ import type { Abi } from "viem";
 
 import { StakingABI } from "@repo/contract";
 
+export function useRewardEndTime(user?: `0x${string}`) {
+  console.log("Address", process.env.NEXT_PUBLIC_STAKING_ADDRESS);
+  const contract = useMemo(
+    () => ({
+      address: process.env.NEXT_PUBLIC_STAKING_ADDRESS as `0x${string}`,
+      abi: StakingABI as Abi,
+    }),
+    []
+  );
+
+  return useReadContract({
+    ...contract,
+    functionName: "rewardEndTime",
+    args: user ? [user] : undefined,
+    query: {
+      enabled: !!user,
+    },
+  });
+}
+
 export function useGetPendingReward(user?: `0x${string}`) {
   console.log("Address", process.env.NEXT_PUBLIC_STAKING_ADDRESS);
   const contract = useMemo(

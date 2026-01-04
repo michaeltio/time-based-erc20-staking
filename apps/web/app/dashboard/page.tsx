@@ -1,4 +1,3 @@
-"use client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,50 +12,32 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import ClientWrapper from "@/components/ClientWrapper";
 import { toast } from "sonner";
 import { useConnection } from "wagmi";
-import { useTotalStaked } from "@/hooks/contracts/useStaking";
+// import { useTotalStaked } from "@/hooks/contracts/useStaking";
 import { formatUnits } from "viem";
 
+import StakingStatus from "@/components/StakingStatus";
+import WalletAddress from "@/components/WalletAddress";
+// import StakingStatus from "@/components/StakingStatus";
+
 export default function DashboardPage() {
-  const { address, status } = useConnection();
-  const { data: totalStaked, isLoading, error } = useTotalStaked(address);
+  // const { data: totalStaked, isLoading, error } = useTotalStaked(address);
 
   return (
     <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-6xl px-4 py-8">
         <h2 className="text-3xl font-bold mb-8 text-foreground">Dashboard</h2>
 
-        {/* Statistics Section */}
         <div className="mb-12 space-y-4">
-          {/* Status Banner */}
-          <Card className="p-6 border border-border bg-card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Staking Status
-                </p>
-                <Badge>{"Ended"}</Badge>
-              </div>
-              {false && (
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground mb-1">Ends in</p>
-                  <p className="font-mono text-sm text-foreground">
-                    1d 2h 30m 15s
-                  </p>
-                </div>
-              )}
-            </div>
-          </Card>
+          <ClientWrapper>
+            <StakingStatus />
+          </ClientWrapper>
 
-          {/* Wallet Address */}
-          <Card className="p-6 border border-border bg-card">
-            <p className="text-sm text-muted-foreground mb-2">Wallet Address</p>
-            <p className="font-mono text-sm text-foreground break-all">
-              {address || "Not connected"}
-            </p>
-          </Card>
-
+          {/* <ClientWrapper> */}
+          <WalletAddress />
+          {/* </ClientWrapper> */}
           {/* Statistics Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Staked Balance */}
@@ -64,11 +45,7 @@ export default function DashboardPage() {
               <p className="text-sm text-muted-foreground mb-2">
                 Staked Balance
               </p>
-              <p className="text-3xl font-bold text-primary">
-                {totalStaked
-                  ? formatUnits(totalStaked as bigint, 18)
-                  : "not connected"}
-              </p>
+              <p className="text-3xl font-bold text-primary">0</p>
               <p className="text-xs text-muted-foreground mt-2">5 Tokens</p>
             </Card>
 
