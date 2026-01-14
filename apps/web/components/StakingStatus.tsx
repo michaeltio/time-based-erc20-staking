@@ -2,10 +2,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { useRewardEndTime } from "@/hooks/contracts/useStaking";
+import { useConnection } from "wagmi";
 
 export default function StakingStatus() {
+  const { address } = useConnection();
   const { data: rewardEndTimeData } = useRewardEndTime();
-  console.log("Reward End Time Data:", rewardEndTimeData);
+  console.log("rewardendtime ", rewardEndTimeData);
+
   return (
     <Card className="p-6 border border-border bg-card">
       <div className="flex items-center justify-between">
@@ -16,7 +19,7 @@ export default function StakingStatus() {
         {false && (
           <div className="text-right">
             <p className="text-xs text-muted-foreground mb-1">Ends in</p>
-            <p className="font-mono text-sm text-foreground">1d 2h 30m 15s</p>
+            <p className="font-mono text-sm text-foreground"></p>
           </div>
         )}
       </div>

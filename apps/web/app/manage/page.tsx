@@ -1,8 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useConnection } from "wagmi";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,8 +13,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { routerServerGlobal } from "next/dist/server/lib/router-utils/router-server-context";
+
 import ClientWrapper from "@/components/ClientWrapper";
+
+import RewardEndTimeCard from "@/components/manage/RewardEndTimeCard";
 
 interface StakerData {
   address: string;
@@ -26,10 +25,7 @@ interface StakerData {
   rewardDebt: number;
 }
 
-export default function AdminDashboard() {
-  const { address } = useConnection();
-  const allowed = "0x7bF1077e09d7882F7Bf9793b1baAEA1E5EC65E88";
-  const router = useRouter();
+export default function ManagePage() {
   const stakers: StakerData[] = [
     {
       address: "0x1234...abcd",
@@ -50,10 +46,6 @@ export default function AdminDashboard() {
       rewardDebt: 50.25,
     },
   ];
-
-  if (address !== allowed) {
-    router.push("/dashboard");
-  }
 
   return (
     <ClientWrapper>
@@ -211,25 +203,7 @@ export default function AdminDashboard() {
             </Card>
 
             {/* Update Reward End Time */}
-            <Card className="p-6 border border-border bg-card">
-              <h3 className="text-lg font-semibold text-foreground mb-4">
-                Update End Time
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-foreground">
-                    Unix Timestamp
-                  </label>
-                  <Input type="number" className="mt-2 text-sm" />
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Current: {new Date(400 * 1000).toLocaleString()}
-                  </p>
-                </div>
-                <Button className="w-full bg-transparent" variant="outline">
-                  Update End Time
-                </Button>
-              </div>
-            </Card>
+            <RewardEndTimeCard />
 
             {/* Contract Info */}
             <Card className="p-6 border border-border bg-card">

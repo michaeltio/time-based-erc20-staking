@@ -6,7 +6,7 @@ import type { Abi } from "viem";
 import { RewardTokenABI } from "@repo/contract";
 
 export function useRewardToken(user?: `0x${string}`) {
-  console.log("Address", process.env.NEXT_PUBLIC_REWARD_TOKEN_ADDRESS);
+  // console.log("Address", process.env.NEXT_PUBLIC_REWARD_TOKEN_ADDRESS);
   const contract = useMemo(
     () => ({
       address: process.env.NEXT_PUBLIC_REWARD_TOKEN_ADDRESS as `0x${string}`,

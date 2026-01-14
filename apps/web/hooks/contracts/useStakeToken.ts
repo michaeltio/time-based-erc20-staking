@@ -6,7 +6,7 @@ import type { Abi } from "viem";
 import { StakeTokenABI } from "@repo/contract";
 
 export function useStakeToken(user?: `0x${string}`) {
-  console.log("Address", process.env.NEXT_PUBLIC_STAKE_TOKEN_ADDRESS);
+  // console.log("Address", process.env.NEXT_PUBLIC_STAKE_TOKEN_ADDRESS);
   const contract = useMemo(
     () => ({
       address: process.env.NEXT_PUBLIC_STAKE_TOKEN_ADDRESS as `0x${string}`,

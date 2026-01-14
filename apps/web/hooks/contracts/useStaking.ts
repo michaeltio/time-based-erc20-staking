@@ -7,116 +7,33 @@ import {
 } from "wagmi";
 import type { Abi } from "viem";
 
-import { StakingABI } from "@repo/contract";
+// import { StakingABI } from "@repo/contract";
+import { abi } from "@/lib/Staking.json";
 
-export function useRewardEndTime(user?: `0x${string}`) {
-  console.log("Address", process.env.NEXT_PUBLIC_STAKING_ADDRESS);
+export function useRewardEndTime() {
+  console.log("Address", process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS);
+  console.log("ABI", abi);
   const contract = useMemo(
     () => ({
-      address: process.env.NEXT_PUBLIC_STAKING_ADDRESS as `0x${string}`,
-      abi: StakingABI as Abi,
+      address: process.env
+        .NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS as `0x${string}`,
+      abi: abi as Abi,
     }),
     []
   );
 
-  return useReadContract({
+  const response = useReadContract({
     ...contract,
     functionName: "rewardEndTime",
-    args: user ? [user] : undefined,
-    query: {
-      enabled: !!user,
-    },
-  });
-}
-
-export function useGetPendingReward(user?: `0x${string}`) {
-  console.log("Address", process.env.NEXT_PUBLIC_STAKING_ADDRESS);
-  const contract = useMemo(
-    () => ({
-      address: process.env.NEXT_PUBLIC_STAKING_ADDRESS as `0x${string}`,
-      abi: StakingABI as Abi,
-    }),
-    []
-  );
-
-  return useReadContract({
-    ...contract,
-    functionName: "getPendingRewards",
-    args: user ? [user] : undefined,
-    query: {
-      enabled: !!user,
-    },
-  });
-}
-
-export function useTotalStaked(user?: `0x${string}`) {
-  console.log("Address", process.env.NEXT_PUBLIC_STAKING_ADDRESS);
-  const contract = useMemo(
-    () => ({
-      address: process.env.NEXT_PUBLIC_STAKING_ADDRESS as `0x${string}`,
-      abi: StakingABI as Abi,
-    }),
-    []
-  );
-
-  return useReadContract({
-    ...contract,
-    functionName: "totalStaked",
-    args: user ? [user] : undefined,
-    query: {
-      enabled: !!user,
-    },
-  });
-}
-
-export function useGetStakeBalance(user?: `0x${string}`) {
-  const contract = useMemo(
-    () => ({
-      address: process.env.NEXT_PUBLIC_STAKING_ADDRESS as `0x${string}`,
-      abi: StakingABI as Abi,
-    }),
-    []
-  );
-
-  return useReadContract({
-    ...contract,
-    functionName: "getStakeBalance",
-    args: user ? [user] : undefined,
-    query: {
-      enabled: !!user,
-    },
-  });
-}
-
-export function useStake() {
-  const contract = useMemo(
-    () => ({
-      address: process.env.NEXT_PUBLIC_STAKING_ADDRESS as `0x${string}`,
-      abi: StakingABI as Abi,
-    }),
-    []
-  );
-
-  const { writeContract, data: hash, isPending, error } = useWriteContract();
-
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
   });
 
-  async function stake(amount: bigint) {
-    return writeContract({
-      ...contract,
-      functionName: "stake",
-      args: [amount],
-    });
-  }
+  console.log("Selesai Contract");
 
-  return {
-    stake,
-    hash,
-    isPending,
-    isConfirming,
-    isSuccess,
-    error,
-  };
+  console.log({
+    isError: response.isError,
+    error: response.error,
+    data: response.data,
+  });
+
+  return response;
 }

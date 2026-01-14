@@ -1,4 +1,3 @@
-"use client";
 import { createConfig, http } from "wagmi";
 import { mainnet, sepolia } from "wagmi/chains";
 import { metaMask, injected } from "wagmi/connectors";
@@ -6,7 +5,7 @@ import { metaMask, injected } from "wagmi/connectors";
 export const config = createConfig({
   chains: [mainnet, sepolia],
   ssr: true,
-  connectors: [injected(), metaMask()],
+  connectors: [metaMask()],
   transports: {
     [mainnet.id]: http(),
     [sepolia.id]: http(

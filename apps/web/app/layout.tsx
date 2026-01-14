@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { WagmiProviders } from "@/providers/wagmiProvider";
+import { AdminAuthProvider } from "@/providers/authProvider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -32,9 +33,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <WagmiProviders>
-          <Header />
-          {children}
-          <Footer />
+          <AdminAuthProvider>
+            <Header />
+            {children}
+            <Footer />
+          </AdminAuthProvider>
         </WagmiProviders>
         <Toaster />
       </body>
