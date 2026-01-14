@@ -2,6 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+
+import StakedBalance from "@/components/StakedBalance";
+import PendingRewards from "@/components/PendingRewards";
+import TotalStaked from "@/components/TotalStaked";
+import RewardRate from "@/components/RewardRate";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,46 +37,14 @@ export default function DashboardPage() {
         <h2 className="text-3xl font-bold mb-8 text-foreground">Dashboard</h2>
 
         <div className="mb-12 space-y-4">
-          <ClientWrapper>
-            <StakingStatus />
-          </ClientWrapper>
-
-          {/* <ClientWrapper> */}
+          <StakingStatus />
           <WalletAddress />
-          {/* </ClientWrapper> */}
-          {/* Statistics Grid */}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Staked Balance */}
-            <Card className="p-6 border border-border bg-card">
-              <p className="text-sm text-muted-foreground mb-2">
-                Staked Balance
-              </p>
-              <p className="text-3xl font-bold text-primary">0</p>
-              <p className="text-xs text-muted-foreground mt-2">5 Tokens</p>
-            </Card>
-
-            {/* Pending Rewards */}
-            <Card className="p-6 border border-border bg-card">
-              <p className="text-sm text-muted-foreground mb-2">
-                Pending Rewards
-              </p>
-              <p className="text-3xl font-bold text-accent">1000</p>
-              <p className="text-xs text-muted-foreground mt-2">1000 Tokens</p>
-            </Card>
-
-            {/* Total Staked (Pool) */}
-            <Card className="p-6 border border-border bg-card">
-              <p className="text-sm text-muted-foreground mb-2">Total Staked</p>
-              <p className="text-3xl font-bold text-foreground">100</p>
-              <p className="text-xs text-muted-foreground mt-2">In Pool</p>
-            </Card>
-
-            {/* Reward Rate */}
-            <Card className="p-6 border border-border bg-card">
-              <p className="text-sm text-muted-foreground mb-2">Reward Rate</p>
-              <p className="text-3xl font-bold text-foreground">0.5</p>
-              <p className="text-xs text-muted-foreground mt-2">0.5 / second</p>
-            </Card>
+            <StakedBalance />
+            <PendingRewards />
+            <TotalStaked />
+            <RewardRate />
           </div>
         </div>
 
