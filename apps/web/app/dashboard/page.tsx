@@ -1,36 +1,15 @@
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-
+import StakingStatus from "@/components/StakingStatus";
+import WalletAddress from "@/components/WalletAddress";
 import StakedBalance from "@/components/StakedBalance";
 import PendingRewards from "@/components/PendingRewards";
 import TotalStaked from "@/components/TotalStaked";
 import RewardRate from "@/components/RewardRate";
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import ClientWrapper from "@/components/ClientWrapper";
-import { toast } from "sonner";
-import { useConnection } from "wagmi";
-// import { useTotalStaked } from "@/hooks/contracts/useStaking";
-import { formatUnits } from "viem";
-
-import StakingStatus from "@/components/StakingStatus";
-import WalletAddress from "@/components/WalletAddress";
-// import StakingStatus from "@/components/StakingStatus";
+import StakeForm from "@/components/StakeForm";
+import WithdrawForm from "@/components/WithdrawForm";
+import ClaimRewards from "@/components/ClaimRewards";
+import EmergencyWithdraw from "@/components/EmergencyWithdraw";
 
 export default function DashboardPage() {
-  // const { data: totalStaked, isLoading, error } = useTotalStaked(address);
-
   return (
     <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-6xl px-4 py-8">
@@ -48,159 +27,19 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Actions Section */}
         <h3 className="text-xl font-semibold mb-4 text-foreground">
           Staking Actions
         </h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Stake Form */}
-          <Card className="p-6 border border-border bg-card">
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-lg font-semibold text-foreground mb-2">
-                  Stake Tokens
-                </h4>
-                <p className="text-sm text-muted-foreground">
-                  Lock your tokens to earn rewards
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">
-                  Amount
-                </label>
-                <div className="flex gap-2">
-                  <Input type="number" placeholder="0.00" className="flex-1" />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="px-4 bg-transparent"
-                  >
-                    Max
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Available: 10,000 Tokens
-                </p>
-              </div>
-
-              <Button className="w-full" size="lg">
-                "Stake"
-              </Button>
-            </div>
-          </Card>
-
-          {/* Withdraw Form */}
-          <Card className="p-6 border border-border bg-card">
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-lg font-semibold text-foreground mb-2">
-                  Withdraw Tokens
-                </h4>
-                <p className="text-sm text-muted-foreground">
-                  Withdraw your staked tokens (claims rewards automatically)
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">
-                  Amount
-                </label>
-                <div className="flex gap-2">
-                  <Input type="number" className="flex-1" />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="px-4 bg-transparent"
-                  >
-                    Max
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Staked: 5,000 Tokens
-                </p>
-              </div>
-
-              <Button className="w-full" size="lg" variant="secondary">
-                "Withdraw"
-              </Button>
-            </div>
-          </Card>
+          <StakeForm />
+          <WithdrawForm />
         </div>
 
-        {/* Rewards Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Claim Rewards */}
-          <Card className="p-6 border border-border bg-card">
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-lg font-semibold text-foreground mb-2">
-                  Claim Rewards
-                </h4>
-                <p className="text-sm text-muted-foreground">
-                  Harvest your accumulated rewards
-                </p>
-              </div>
-
-              <div className="flex items-end justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">
-                    Available to Claim
-                  </p>
-                  <p className="text-2xl font-bold text-accent">500</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    500 Tokens
-                  </p>
-                </div>
-                <Button
-                  size="lg"
-                  className="bg-accent text-accent-foreground hover:opacity-90"
-                >
-                  "Claim"
-                </Button>
-              </div>
-            </div>
-          </Card>
-
-          {/* Emergency Withdraw */}
-          <Card className="p-6 border border-destructive/20 bg-destructive/5">
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-lg font-semibold text-foreground mb-2">
-                  Emergency Withdraw
-                </h4>
-                <p className="text-sm text-muted-foreground">
-                  Withdraw all tokens without claiming rewards (use with
-                  caution)
-                </p>
-              </div>
-
-              <Button variant="destructive" className="w-full" size="lg">
-                Emergency Withdraw All
-              </Button>
-            </div>
-          </Card>
+          <ClaimRewards />
+          <EmergencyWithdraw />
         </div>
       </main>
-
-      {/* Emergency Withdrawal Dialog */}
-      <AlertDialog>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Emergency Withdraw</AlertDialogTitle>
-            <AlertDialogDescription>
-              You are about to withdraw all 0 Tokens without claiming your
-              pending rewards. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              "Confirm Withdraw"
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

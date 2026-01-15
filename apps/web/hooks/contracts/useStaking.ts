@@ -57,3 +57,14 @@ export function useRewardRate() {
     functionName: "rewardRate",
   });
 }
+
+export function useStake(amount: bigint) {
+  const writeContract = useWriteContract();
+
+  writeContract.mutate({
+    address: process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS as `0x${string}`,
+    abi: StakingABI as Abi,
+    functionName: "stake",
+    args: [amount],
+  });
+}
