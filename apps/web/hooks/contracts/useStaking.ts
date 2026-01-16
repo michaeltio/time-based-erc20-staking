@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import {
   useReadContract,
   useWriteContract,
@@ -58,13 +57,41 @@ export function useRewardRate() {
   });
 }
 
-export function useStake(amount: bigint) {
-  const writeContract = useWriteContract();
+export function useStake() {
+  const {
+    writeContract,
+    data: hash,
+    isPending,
+    isError,
+    error,
+  } = useWriteContract();
 
-  writeContract.mutate({
-    address: process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS as `0x${string}`,
-    abi: StakingABI as Abi,
-    functionName: "stake",
-    args: [amount],
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+    isError: isFailed,
+  } = useWaitForTransactionReceipt({
+    hash,
   });
+
+  const stake = (amount: bigint) => {
+    writeContract({
+      address: process.env
+        .NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS as `0x${string}`,
+      abi: StakingABI as Abi,
+      functionName: "stake",
+      args: [amount],
+    });
+  };
+
+  return {
+    stake,
+    hash,
+    isPending,
+    isConfirming,
+    isConfirmed,
+    isFailed,
+    isError,
+    error,
+  };
 }
