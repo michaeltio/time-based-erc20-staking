@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { useRewardRate } from "@/hooks/contracts/useStaking";
+import { formatUnits } from "viem";
 
 export default function RewardRate() {
   const { data: rewardRate, isLoading, error } = useRewardRate();
@@ -27,7 +28,9 @@ export default function RewardRate() {
   return (
     <Card className="p-6 border border-border bg-card">
       <p className="text-sm text-muted-foreground mb-2">Reward Rate</p>
-      <p className="text-3xl font-bold text-foreground">{rewardRateValue}</p>
+      <p className="text-3xl font-bold text-foreground">
+        {formatUnits(rewardRateValue || 0n, 18)}
+      </p>
       <p className="text-xs text-muted-foreground mt-2">per second</p>
     </Card>
   );

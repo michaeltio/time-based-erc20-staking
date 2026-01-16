@@ -34,7 +34,7 @@ export function useAllowance(user?: `0x${string}`, spender?: `0x${string}`) {
 }
 
 export function useApprove() {
-  const stakingAddress = process.env
+  const stakeTokenAddress = process.env
     .NEXT_PUBLIC_STAKE_TOKEN_ADDRESS as `0x${string}`;
 
   const {
@@ -55,7 +55,7 @@ export function useApprove() {
 
   const approve = (spender: `0x${string}`, amount: bigint) => {
     writeContract({
-      address: stakingAddress,
+      address: stakeTokenAddress,
       abi: StakeTokenABI as Abi,
       functionName: "approve",
       args: [spender, amount],

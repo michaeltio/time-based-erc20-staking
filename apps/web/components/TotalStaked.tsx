@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { useTotalStaked } from "@/hooks/contracts/useStaking";
+import { formatUnits } from "viem";
 
 export default function TotalStaked() {
   const { data: totalStaked, isLoading, error } = useTotalStaked();
@@ -28,7 +29,9 @@ export default function TotalStaked() {
   return (
     <Card className="p-6 border border-border bg-card">
       <p className="text-sm text-muted-foreground mb-2">Total Staked</p>
-      <p className="text-3xl font-bold text-foreground">{totalStakedValue}</p>
+      <p className="text-3xl font-bold text-foreground">
+        {formatUnits(totalStakedValue || 0n, 18)}
+      </p>
       <p className="text-xs text-muted-foreground mt-2">In Pool</p>
     </Card>
   );

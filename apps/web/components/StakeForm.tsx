@@ -12,22 +12,20 @@ import {
 } from "@/hooks/contracts/useStakeToken";
 import { useConnection } from "wagmi";
 import { formatUnits, parseEther } from "viem";
+import { toast } from "sonner";
+import { format } from "path";
 
 export default function StakeCard() {
   const [amount, setAmount] = useState("");
   const { address } = useConnection();
+
   const { data: balance } = useBalanceOf(address);
   const { data: allowance } = useAllowance(
     address,
-    process.env.NEXT_PUBLIC_STAKE_TOKEN_ADDRESS as `0x${string}`
+    process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS as `0x${string}`
   );
-  const {
-    stake,
-    isPending: isStakePending,
-    isConfirming: isStakeConfirming,
-    isConfirmed: isStakeConfirmed,
-    isError: isStakeError,
-  } = useStake();
+  const allowanceValue = allowance as bigint | undefined;
+  const rawBalance = balance as bigint | undefined;
 
   const {
     approve,
@@ -36,57 +34,76 @@ export default function StakeCard() {
     isConfirmed: isApproveConfirmed,
     isError: isApproveError,
   } = useApprove();
+  const {
+    stake,
+    isPending: isStakePending,
+    isConfirming: isStakeConfirming,
+    isConfirmed: isStakeConfirmed,
+    isError: isStakeError,
+  } = useStake();
 
-  const allowanceValue = allowance as bigint | undefined;
+  let amountWei: bigint | undefined;
+  try {
+    if (amount) amountWei = parseEther(amount);
+  } catch (e) {
+    amountWei = undefined;
+  }
+
+  const handleMax = () => {
+    if (rawBalance) {
+      setAmount(formatUnits(rawBalance, 18));
+    }
+  };
 
   const handleStake = () => {
-    console.log("Amount Entered: ", amount);
-    if (!amount) return;
+    console.log("amount", amountWei);
+    if (!amount || !amountWei) {
+      toast.error("Please enter a valid amount.");
+      return;
+    }
 
-    if (allowanceValue! < parseEther(amount)) {
-      console.log("Insufficient allowance. Please approve tokens first.");
+    console.log("Checking allowance...");
+    console.log("allowanceValue", allowanceValue);
+
+    if (!allowanceValue || allowanceValue < amountWei) {
+      toast(`Allowance too low. Approving ${amount} tokens...`);
       approve(
         process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS as `0x${string}`,
-        parseEther(amount)
+        amountWei
       );
       return;
     }
 
-    stake(parseEther(amount));
+    console.log("Staking now...");
+    stake(amountWei);
   };
 
   useEffect(() => {
-    console.log("triggered Confirming Stake")
-    if (!amount) return;
+    if (!amountWei) return;
     if (!isApproveConfirmed) return;
-    if (allowanceValue === undefined) return;
-
-    const amountWei = parseEther(amount);
-
+    if (!allowanceValue) return;
     if (allowanceValue >= amountWei) {
+      toast("Allowance confirmed. Staking now...");
       stake(amountWei);
     }
   }, [isApproveConfirmed, allowanceValue]);
 
   useEffect(() => {
-    if (isStakeConfirmed) {
-      console.log("Stake confirmed!");
-    }
+    if (isStakePending) toast("Stake transaction submitted...");
+    if (isStakeConfirming) toast.loading("Stake confirming...");
+    if (isStakeConfirmed) toast.success("Stake successful!");
+    if (isStakeError) toast.error("Stake failed.");
+  }, [isStakePending, isStakeConfirming, isStakeConfirmed, isStakeError]);
 
-    if (isStakePending) {
-      console.log("Stake pending...");
-    }
-
-    if (isStakeError) {
-      console.log("Stake error occurred.");
-    }
-
-    if (isStakeConfirming) {
-      console.log("Stake confirming...");
-    }
-  }, [isStakeConfirmed, isStakePending, isStakeError, isStakeConfirming]);
-
-  const rawBalance = balance as bigint | undefined;
+  let buttonText = "Stake";
+  const isProcessing =
+    isApprovePending ||
+    isApproveConfirming ||
+    isStakePending ||
+    isStakeConfirming;
+  if (amountWei && allowanceValue && allowanceValue < amountWei)
+    buttonText = "Approve";
+  if (isProcessing) buttonText = "Processing...";
 
   return (
     <Card className="p-6 border border-border bg-card">
@@ -116,17 +133,23 @@ export default function StakeCard() {
               type="button"
               variant="outline"
               className="px-4 bg-transparent"
+              onClick={handleMax}
             >
               Max
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Available: {formatUnits(rawBalance ?? 0n, 18)} Tokens
+            Available: {rawBalance ? formatUnits(rawBalance, 18) : "0"} Tokens
           </p>
         </div>
 
-        <Button className="w-full" size="lg" onClick={handleStake}>
-          Stake
+        <Button
+          className="w-full"
+          size="lg"
+          onClick={handleStake}
+          disabled={isProcessing || !amount || !amountWei || amountWei === 0n}
+        >
+          {buttonText}
         </Button>
       </div>
     </Card>

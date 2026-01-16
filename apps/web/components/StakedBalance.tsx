@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 
 import { useStakedBalance } from "@/hooks/contracts/useStaking";
 import { useConnection } from "wagmi";
+import { formatUnits } from "viem";
 
 export default function StakedBalance() {
   const { address } = useConnection();
@@ -31,7 +32,9 @@ export default function StakedBalance() {
   return (
     <Card className="p-6 border border-border bg-card">
       <p className="text-sm text-muted-foreground mb-2">Staked Balance</p>
-      <p className="text-3xl font-bold text-primary">{stakedBalanceValue}</p>
+      <p className="text-3xl font-bold text-primary">
+        {formatUnits(stakedBalanceValue || 0n, 18)}
+      </p>
       <p className="text-xs text-muted-foreground mt-2">Tokens</p>
     </Card>
   );
