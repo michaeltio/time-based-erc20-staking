@@ -11,7 +11,7 @@ import {
   useApprove,
 } from "@/hooks/contracts/useStakeToken";
 import { useConnection } from "wagmi";
-import { formatUnits } from "viem";
+import { formatUnits, parseEther } from "viem";
 
 export default function StakeCard() {
   const [amount, setAmount] = useState("");
@@ -40,20 +40,33 @@ export default function StakeCard() {
   const allowanceValue = allowance as bigint | undefined;
 
   const handleStake = () => {
-    console.log("test");
+    console.log("Amount Entered: ", amount);
     if (!amount) return;
 
-    if (allowanceValue !== undefined && allowanceValue < BigInt(amount)) {
+    if (allowanceValue! < parseEther(amount)) {
       console.log("Insufficient allowance. Please approve tokens first.");
       approve(
-        process.env.NEXT_PUBLIC_STAKE_TOKEN_ADDRESS as `0x${string}`,
-        BigInt(amount)
+        process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS as `0x${string}`,
+        parseEther(amount)
       );
       return;
     }
 
-    stake(BigInt(amount));
+    stake(parseEther(amount));
   };
+
+  useEffect(() => {
+    console.log("triggered Confirming Stake")
+    if (!amount) return;
+    if (!isApproveConfirmed) return;
+    if (allowanceValue === undefined) return;
+
+    const amountWei = parseEther(amount);
+
+    if (allowanceValue >= amountWei) {
+      stake(amountWei);
+    }
+  }, [isApproveConfirmed, allowanceValue]);
 
   useEffect(() => {
     if (isStakeConfirmed) {
