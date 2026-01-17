@@ -21,6 +21,7 @@
     "viem": "^2.30.0"
   },
   "scripts": {
+    "build": "hardhat compile",
     "compile": "hardhat compile",
     "test": "hardhat test",
     "deploy:sepolia": "hardhat ignition deploy ignition/modules/staking.ts --network sepolia"
