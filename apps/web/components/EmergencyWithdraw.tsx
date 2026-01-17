@@ -4,9 +4,14 @@ import { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useEmergencyWithdraw } from "@/hooks/contracts/useStaking";
+import {
+  useEmergencyWithdraw,
+  useStakedBalance,
+} from "@/hooks/contracts/useStaking";
+import { useConnection } from "wagmi";
 
 export default function EmergencyWithdraw() {
+  const { address } = useConnection();
   const {
     emergencyWithdraw,
     isPending,
@@ -16,13 +21,12 @@ export default function EmergencyWithdraw() {
     error,
   } = useEmergencyWithdraw();
 
-  const handleEmergencyWithdraw = () => {
-    const confirmed = window.confirm(
-      "This will withdraw all your staked tokens without rewards.\nThis action cannot be undone.\n\nAre you sure?"
-    );
+  const { data: stakedBalance } = useStakedBalance(address);
 
-    if (!confirmed) {
-      toast.error("Emergency withdraw cancelled.");
+  const handleEmergencyWithdraw = () => {
+    if (!stakedBalance || (stakedBalance as bigint) === 0n) {
+      console.log("stakedBalance", stakedBalance);
+      toast.error("No staked balance to withdraw.");
       return;
     }
 

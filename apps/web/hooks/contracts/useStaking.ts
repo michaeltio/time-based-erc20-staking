@@ -172,3 +172,41 @@ export function useEmergencyWithdraw() {
     error,
   };
 }
+
+export function useClaimRewards() {
+  const {
+    writeContract,
+    data: hash,
+    isPending,
+    isError,
+    error,
+  } = useWriteContract();
+
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+    isError: isFailed,
+  } = useWaitForTransactionReceipt({
+    hash,
+  });
+
+  const claimRewards = () => {
+    writeContract({
+      address: process.env
+        .NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS as `0x${string}`,
+      abi: StakingABI as Abi,
+      functionName: "claimRewards",
+    });
+  };
+
+  return {
+    claimRewards,
+    hash,
+    isPending,
+    isConfirming,
+    isConfirmed,
+    isFailed,
+    isError,
+    error,
+  };
+}
