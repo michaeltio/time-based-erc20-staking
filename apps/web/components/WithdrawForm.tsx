@@ -54,7 +54,7 @@ export default function WithdrawForm() {
   };
 
   const handleMax = () => {
-    if (!stakedBalance) return;
+    if (!stakedBalance || typeof stakedBalance !== "bigint") return;
     setAmount(stakedBalance.toString());
   };
 
