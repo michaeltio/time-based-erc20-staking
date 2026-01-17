@@ -19,7 +19,7 @@
     },
     "compile": {
       "dependsOn": ["^compile"],
-      "outputs": ["artifacts/**", "cache/**"]
+      "outputs": ["artifacts/**", "cache/**", "src/**/*.ts"]
     },
     "test": {
       "dependsOn": ["compile"],

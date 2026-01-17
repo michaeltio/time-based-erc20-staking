@@ -7,8 +7,8 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "contract:test": "turbo run test --filter contract",
-    "contract:compile": "turbo run compile --filter contract"
+    "contract:test": "turbo run test --filter @repo/contract",
+    "contract:compile": "turbo run compile --filter @repo/contract"
   },
   "devDependencies": {
     "prettier": "^3.7.4",
