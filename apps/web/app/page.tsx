@@ -7,6 +7,8 @@ import {
   DashboardTotalStaked,
 } from "@/components/DashboardComponents";
 
+export const dynamic = 'force-dynamic';
+
 export default function Landing() {
   return (
     <div className="min-h-screen text-foreground">

@@ -9,7 +9,7 @@ export function DashboardRewardRate() {
     return <p className="text-4xl md:text-5xl font-bold">Loading...</p>;
   }
 
-  if (isError) {
+  if (isError || rewardRate === undefined) {
     return <p className="text-4xl md:text-5xl font-bold">Error</p>;
   }
 
@@ -27,7 +27,7 @@ export function DashboardTotalStaked() {
     return <p className="text-4xl md:text-5xl font-bold">Loading...</p>;
   }
 
-  if (isError) {
+  if (isError || totalStaked === undefined) {
     return <p className="text-4xl md:text-5xl font-bold">Error</p>;
   }
 
