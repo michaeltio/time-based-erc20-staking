@@ -10,19 +10,15 @@ export default function AsciiBackground() {
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // ===== Scene =====
     const scene = new THREE.Scene();
     scene.background = new THREE.Color("#020617");
 
-    // ===== Camera (ORTHO FULL SCREEN) =====
     const camera = new THREE.OrthographicCamera();
     camera.position.z = 10;
 
-    // ===== Renderer =====
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    // ===== ASCII Effect =====
     const effect = new AsciiEffect(renderer, " .:-=+*#%@", {
       invert: true,
     });
@@ -36,7 +32,6 @@ export default function AsciiBackground() {
 
     mountRef.current.appendChild(effect.domElement);
 
-    // ===== Geometry (akan di-scale sesuai screen) =====
     let geometry: THREE.PlaneGeometry;
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
@@ -47,13 +42,11 @@ export default function AsciiBackground() {
     plane.rotation.x = Math.PI / 6;
     scene.add(plane);
 
-    // ===== Resize & Setup =====
     const setup = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
       const aspect = width / height;
 
-      // Ortho camera mengikuti screen
       const viewSize = 10;
       camera.left = (-aspect * viewSize) / 2;
       camera.right = (aspect * viewSize) / 2;
@@ -63,12 +56,11 @@ export default function AsciiBackground() {
       camera.far = 50;
       camera.updateProjectionMatrix();
 
-      // Geometry mengikuti layar
       geometry?.dispose();
       geometry = new THREE.PlaneGeometry(
         aspect * viewSize,
         viewSize,
-        Math.floor(width / 6), // density mengikuti screen
+        Math.floor(width / 6),
         Math.floor(height / 20)
       );
 
@@ -81,7 +73,6 @@ export default function AsciiBackground() {
     setup();
     window.addEventListener("resize", setup);
 
-    // ===== Animation =====
     let time = 0;
     let frameId: number;
 
@@ -108,7 +99,6 @@ export default function AsciiBackground() {
 
     animate();
 
-    // ===== Cleanup =====
     return () => {
       cancelAnimationFrame(frameId);
       window.removeEventListener("resize", setup);

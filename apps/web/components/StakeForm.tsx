@@ -13,7 +13,6 @@ import {
 import { useConnection } from "wagmi";
 import { formatUnits, parseEther } from "viem";
 import { toast } from "sonner";
-import { format } from "path";
 
 export default function StakeCard() {
   const [amount, setAmount] = useState("");

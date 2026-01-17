@@ -95,3 +95,80 @@ export function useStake() {
     error,
   };
 }
+
+export function useWithdraw() {
+  const {
+    writeContract,
+    data: hash,
+    isPending,
+    isError,
+    error,
+  } = useWriteContract();
+
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+    isError: isFailed,
+  } = useWaitForTransactionReceipt({
+    hash,
+  });
+
+  const withdraw = (amount: bigint) => {
+    writeContract({
+      address: process.env
+        .NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS as `0x${string}`,
+      abi: StakingABI as Abi,
+      functionName: "withdraw",
+      args: [amount],
+    });
+  };
+
+  return {
+    withdraw,
+    hash,
+    isPending,
+    isConfirming,
+    isConfirmed,
+    isFailed,
+    isError,
+    error,
+  };
+}
+
+export function useEmergencyWithdraw() {
+  const {
+    writeContract,
+    data: hash,
+    isPending,
+    isError,
+    error,
+  } = useWriteContract();
+
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+    isError: isFailed,
+  } = useWaitForTransactionReceipt({
+    hash,
+  });
+
+  const emergencyWithdraw = () => {
+    writeContract({
+      address: process.env
+        .NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS as `0x${string}`,
+      abi: StakingABI as Abi,
+      functionName: "emergencyWithdraw",
+    });
+  };
+
+  return {
+    emergencyWithdraw,
+    hash,
+    isPending,
+    isConfirming,
+    isConfirmed,
+    isFailed,
+    isError,
+    error,
+  };
+}
